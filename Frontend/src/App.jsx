@@ -6,6 +6,8 @@ import Home from "./pages/Home";
 import ShopPage from "./pages/ShopPage";
 import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
+import AdminPanel from "./pages/Admin/AdminPanel";
+
 function App() {
   return (
     <>
@@ -17,6 +19,8 @@ function App() {
           <Route path="/shop" element={<ShopPage/>}/>
           <Route path="/productDetails/" element={<ProductDetails/>}/>
           <Route path="/cart" element={<CartPage/>}/>
+          <Route path="/admin" element={<AdminPanel/>}/>
+       
         </Routes>
 
         

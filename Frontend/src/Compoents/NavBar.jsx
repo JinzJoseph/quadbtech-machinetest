@@ -10,7 +10,8 @@ const NavBar = () => {
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
-
+  const [menuOpen, SetMenuOpen] = useState(false);
+  const user=true
   return (
     <>
       <div className="container mx-auto pt-3 flex justify-between items-center h-[8%] z-20">
@@ -19,17 +20,24 @@ const NavBar = () => {
         </Link>
         <div className="flex gap-6 pt-2">
           {/* content */}
-          <Link to="/" className="text-lg font-semibold text-slate-400">Home</Link>
-          <Link to="/shop" className="text-lg font-semibold text-slate-400">Shop</Link>
-          <Link to="/cart" className="text-lg font-semibold text-slate-400">Cart</Link>
+          <Link to="/" className="text-lg font-semibold text-slate-400">
+            Home
+          </Link>
+          <Link to="/shop" className="text-lg font-semibold text-slate-400">
+            Shop
+          </Link>
+          <Link to="/cart" className="text-lg font-semibold text-slate-400">
+            Cart
+          </Link>
           <p className="text-lg font-semibold text-slate-400">Contact Us</p>
+          <p className="text-lg font-semibold text-white items-center bg-black px-4 py-2  rounded">Logout</p>
         </div>
         <div className="flex justify-between gap-5 items-center">
           {/* items */}
           <p className="text-2xl text-black">
             <CiSearch />
           </p>
-         
+
           <button
             className="text-black relative text-2xl focus:ring-4 focus:ring-blue-300 font-medium rounded-lg px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
             type="button"
@@ -40,11 +48,28 @@ const NavBar = () => {
               2
             </span>
           </button>
-          
-          
-          <p className="text-2xl text-black">
+
+          <p
+            className="text-2xl text-black"
+            onClick={() => SetMenuOpen(!menuOpen)}
+          >
             <CgProfile />
           </p>
+          {menuOpen && (
+            <div className="absolute bg-white bottom-0 top-11 h-fit p-2 shadow-lg rounded">
+              <nav>
+                {user && (
+                  <Link
+                    to={"/admin"}
+                    className="whitespace-nowrap hidden md:block hover:bg-slate-100 p-2 text-2xl"
+                    onClick={() => SetMenuOpen(!menuOpen)}
+                  >
+                    Admin Panel
+                  </Link>
+                )}
+              </nav>
+            </div>
+          )}
         </div>
       </div>
 
