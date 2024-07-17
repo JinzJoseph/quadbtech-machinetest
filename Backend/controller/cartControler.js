@@ -33,30 +33,25 @@ export const getUserCart = async (req, res) => {
 };
 export const addItemToCart = async (req, res) => {
   try {
-    console.log(req.body);
-    const { productId } = req.body;
-    
-    if (req.user===true) {
-      return res.status(403).json({
-        message: "Please Login",
-        success: false,
-      });
-    }
-    const isThatProductInDataBase = await Cart.findOne({
-      productId: productId,
-    });
+    const { productId, userId } = req.body;
+
+    const isThatProductInDataBase = await Cart.findOne({ productId });
+
     if (isThatProductInDataBase) {
       return res.status(401).json({
         message: "Product Already in the cart",
         success: false,
       });
     }
+
     const uploadToCart = new Cart({
-      userId: req.user._id,
-      productId: productId,
+      userId,
+      productId,
       Qty: 1,
     });
-    uploadToCart.save();
+
+    await uploadToCart.save();
+
     res.status(200).json({
       message: "Successfully data added",
       success: true,
@@ -64,24 +59,27 @@ export const addItemToCart = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).json({
-      message: `An Error occured due to ${error.message}`,
+      message: `An Error occurred due to ${error.message}`,
       success: false,
     });
   }
 };
+
 export const deleteProduct = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const result = await Cart.findByIdAndDelete({ _id: id });
-      res.status(200).json({
-        message: "successfully deleted",
-        suucess: true,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        message: error.message || error,
-        error: true,
-        success: false,
-      });
-    }
-  };
+  try {
+    const { id } = req.params;
+    console.log(id);
+    const result = await Cart.findByIdAndDelete(id);
+    res.status(200).json({
+      message: "successfully deleted",
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+};
+

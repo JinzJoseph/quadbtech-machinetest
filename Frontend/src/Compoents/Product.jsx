@@ -1,8 +1,13 @@
 import React from "react";
 import { FaStar } from "react-icons/fa";
 import { TbJewishStar } from "react-icons/tb";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { addTocart } from "../redux/Cart/CartSlice";
+import { useDispatch,useSelector } from "react-redux";
 const Product = ({ item }) => {
+  const dispatch = useDispatch();
+  const {currentUser}=useSelector((state)=>state.user)
   const {
     _id,
     productName,
@@ -12,6 +17,23 @@ const Product = ({ item }) => {
     price,
     sellingPrice,
   } = item;
+  const userId=currentUser._id
+  const handleAddToCart = async (id) => {
+    try {
+      const res = await axios.post("/api/cart/cart", {productId:id,userId}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(res);
+      if (res.status === 200) {
+        alert("Successfully product added to cart");
+        dispatch(addTocart(item));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Link to={`/productDetails/${_id}`}>
       <div className="relative flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md overflow-x-auto translate-all  scrollbar-none">
@@ -21,7 +43,7 @@ const Product = ({ item }) => {
         >
           <img
             className="object-cover"
-            src={productImage[0] }
+            src={productImage[0]}
             alt="product image"
           />
           <div className="absolute top-0 left-0 m-2  px-2 text-center text-sm font-medium text-white">
@@ -38,9 +60,10 @@ const Product = ({ item }) => {
         </a>
 
         <div className="mt-4 px-5 pb-5">
-          <div
+          <button
+            onClick={() => handleAddToCart(_id)}
             href="#"
-            className="flex items-center justify-center rounded-md bg-slate-900 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
+            className="flex items-center justify-center w-full rounded-md bg-slate-900 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +80,7 @@ const Product = ({ item }) => {
               />
             </svg>
             Add to cart
-          </div>
+          </button>
           <div className="flex  m-4 gap-2">
             <FaStar className="h-5 w-5 text-black" />
             <FaStar className="h-5 w-5 text-black" />
@@ -72,7 +95,9 @@ const Product = ({ item }) => {
           </a>
           <div className="mt-2 mb-5 flex items-center justify-between">
             <p>
-              <span className="text-2xl font-bold text-slate-900">${price}</span>
+              <span className="text-2xl font-bold text-slate-900">
+                ${price}
+              </span>
               <span className="text-2xl text-slate-300 line-through ml-3 ">
                 ${sellingPrice}
               </span>

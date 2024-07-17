@@ -27,7 +27,7 @@ export const getSingleProduct = async (req, res) => {
         success: false,
       });
     }
-    console.log(product);
+    
     res.status(200).json({
       message: "suucessfully fetched data",
       success: true,

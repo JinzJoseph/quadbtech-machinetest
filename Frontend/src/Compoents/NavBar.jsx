@@ -5,11 +5,14 @@ import { IoMdClose } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { signoutSuccess } from "../redux/User/UserSlice";
+import { removeItem } from "../redux/Cart/CartSlice";
 import axios from "axios";
 const NavBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
+  const { cart } = useSelector((state) => state.cart);
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const toggleDrawer = () => {
@@ -28,6 +31,19 @@ const NavBar = () => {
       console.log(error);
     }
   };
+  const handleRemove = async (id) => {
+    try {
+      const res = await axios.delete(`/api/cart/cart/${id}`);
+      if (res.status === 200) {
+        dispatch(removeItem(id));
+        alert("Removed Product from cart");
+      }
+    } catch (error) {
+      console.log("something went wrong");
+    }
+  };
+  const totalprice = cart.reduce((acc, item) => acc + parseInt(item.price), 0);
+ const lastprice =totalprice+100
   return (
     <>
       <div className="container mx-auto pt-3 flex justify-between items-center h-[8%] z-20">
@@ -61,7 +77,7 @@ const NavBar = () => {
             <CiShoppingCart />
             {currentUser ? (
               <span className="absolute top-0 right-5 mt-3 transform -translate-y-1/2 translate-x-1/2 bg-black text-white px-1 rounded-full text-xs">
-                2
+                {cart.length}
               </span>
             ) : (
               ""
@@ -77,17 +93,6 @@ const NavBar = () => {
           {menuOpen && (
             <div className="absolute bg-white bottom-0 top-11 h-fit p-2 shadow-lg rounded">
               <nav>
-              {/* {currentUser === false && (
-                  <div>
-                    <button
-                      className="whitespace-nowrap bg-black text-white px-4 py-1 font-bold hidden md:block  p-2 text-2xl"
-                      onClick={() => navigate("/login")}
-                    >
-                      login
-                    </button>
-                  </div>
-                )} */}
-
                 {currentUser?.isAdmin ? (
                   <div>
                     <Link
@@ -115,7 +120,6 @@ const NavBar = () => {
                     </button>
                   </div>
                 )}
-                
               </nav>
             </div>
           )}
@@ -150,93 +154,71 @@ const NavBar = () => {
             <div class="rounded-3xl bg-white ">
               <div class="px-4 py-6 sm:px-8 sm:py-10">
                 <div class="flow-root">
-                  <ul class="-my-8">
-                    <li class="flex flex-col space-y-3 py-6 text-left sm:flex-row sm:space-x-5 sm:space-y-0">
-                      <div class="shrink-0 relative">
-                        <div className="bg-slate-400 w-28  h-32">
-                          <img
-                            class="h-28 w-24 max-w-full object-cover mx-auto pt-4"
-                            src="https://images.unsplash.com/photo-1588484628369-dd7a85bfdc38?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTh8fHNuZWFrZXJ8ZW58MHx8MHx8&auto=format&fit=crop&w=150&q=60"
-                            alt=""
-                          />
-                        </div>
-                      </div>
-
-                      <div class="relative flex flex-1 flex-col justify-between">
-                        <div class="sm:col-gap-5 sm:grid sm:grid-cols-2">
-                          <div class="pr-8 sm:pr-5">
-                            <p class="text-base font-semibold text-gray-900">
-                              Nike Air Max 2019
-                            </p>
-                            <p class="mx-0 mt-1 mb-0 text-sm text-gray-400">
-                              Color:Black
-                            </p>
-                            <div className="flex items-center border border-1 justify-between border-black rounded-md font-bold mt-1 px-4 py-1.5">
-                              <p>-</p>
-                              <p>4</p>
-                              <p>+</p>
+                  {cart.map((item, index) => {
+                    return (
+                      <ul class="-my-8">
+                        <li class="flex flex-col space-y-3 py-6 text-left sm:flex-row sm:space-x-5 sm:space-y-0">
+                          <div class="shrink-0 relative">
+                            <div className="bg-slate-400 w-28  h-32">
+                              <img
+                                class="h-28 w-24 max-w-full object-cover mx-auto pt-4"
+                                src={item.productImage[0]}
+                                alt=""
+                              />
                             </div>
                           </div>
 
-                          <div class="mt-4 flex items-end justify-between sm:mt-0 sm:items-start sm:justify-end">
-                            <p class="shrink-0 w-20 text-base font-semibold text-gray-900 sm:order-2 sm:ml-8 sm:text-right">
-                              $1259.00
-                            </p>
+                          <div class="relative flex flex-1 flex-col justify-between">
+                            <div class="sm:col-gap-5 sm:grid sm:grid-cols-2">
+                              <div class="pr-8 sm:pr-5">
+                                <p class="text-base font-semibold text-gray-900">
+                                  {item.productName}
+                                </p>
+                                <p class="mx-0 mt-1 mb-0 text-sm text-gray-400">
+                                  Color:Black
+                                </p>
+                                <div className="flex items-center border border-1 justify-between border-black rounded-md font-bold mt-1 px-4 py-1.5">
+                                  <p>-</p>
+                                  <p>0</p>
+                                  <p>+</p>
+                                </div>
+                              </div>
+
+                              <div class="mt-4 flex items-end justify-between sm:mt-0 sm:items-start sm:justify-end">
+                                <p class="shrink-0 w-20 text-base font-semibold text-gray-900 sm:order-2 sm:ml-8 sm:text-right">
+                                  {item.sellingPrice}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div class="absolute top-0 right-0 flex sm:bottom-0 sm:top-auto">
+                              <button
+                                onClick={() => handleRemove(item._id)}
+                                type="button"
+                                class="flex rounded p-2 text-center text-gray-500 transition-all duration-200 ease-in-out focus:shadow hover:text-gray-900"
+                              >
+                                <svg
+                                  class="h-5 w-5"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                    class=""
+                                  ></path>
+                                </svg>
+                              </button>
+                            </div>
                           </div>
-                        </div>
-
-                        <div class="absolute top-0 right-0 flex sm:bottom-0 sm:top-auto">
-                          <button
-                            type="button"
-                            class="flex rounded p-2 text-center text-gray-500 transition-all duration-200 ease-in-out focus:shadow hover:text-gray-900"
-                          >
-                            <svg
-                              class="h-5 w-5"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"
-                                class=""
-                              ></path>
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                    {/* <li class="flex flex-col space-y-3 py-6 text-left sm:flex-row sm:space-x-5 sm:space-y-0">
-                <div class="shrink-0 relative">
-                  <span class="absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border bg-white text-sm font-medium text-gray-500 shadow sm:-top-2 sm:-right-2">1</span>
-                  <img class="h-24 w-24 max-w-full rounded-lg object-cover" src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8c25lYWtlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=150&q=60" alt="" />
-                </div>
-
-                <div class="relative flex flex-1 flex-col justify-between">
-                  <div class="sm:col-gap-5 sm:grid sm:grid-cols-2">
-                    <div class="pr-8 sm:pr-5">
-                      <p class="text-base font-semibold text-gray-900">Nike Air Max 2019</p>
-                      <p class="mx-0 mt-1 mb-0 text-sm text-gray-400">36EU - 4US</p>
-                    </div>
-
-                    <div class="mt-4 flex items-end justify-between sm:mt-0 sm:items-start sm:justify-end">
-                      <p class="shrink-0 w-20 text-base font-semibold text-gray-900 sm:order-2 sm:ml-8 sm:text-right">$1259.00</p>
-                    </div>
-                  </div>
-
-                  <div class="absolute top-0 right-0 flex sm:bottom-0 sm:top-auto">
-                    <button type="button" class="flex rounded p-2 text-center text-gray-500 transition-all duration-200 ease-in-out focus:shadow hover:text-gray-900">
-                      <svg class="block h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" class=""></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </li> */}
-                  </ul>
+                        </li>
+                      </ul>
+                    );
+                  })}
                 </div>
 
                 <hr class="mx-0 mt-6 mb-0 h-0 border-r-0 border-b-0 border-l-0 border-t border-solid border-gray-300" />
@@ -244,13 +226,13 @@ const NavBar = () => {
                 <div class="mt-6 space-y-3 border-t border-b py-8">
                   <div class="flex items-center justify-between">
                     <p class="text-gray-400">Subtotal</p>
-                    <p class="text-lg font-semibold text-gray-900">$2399.00</p>
+                    <p class="text-lg font-semibold text-gray-900">${totalprice}</p>
                   </div>
                   <div class="mt-6 flex items-center justify-between">
                     <p class="text-sm font-medium text-gray-900">Total</p>
                     <p class="text-2xl font-semibold text-gray-900">
                       <span class="text-xs font-normal text-gray-400">$</span>{" "}
-                      2499.00
+                    {lastprice}
                     </p>
                   </div>
                 </div>
@@ -258,7 +240,7 @@ const NavBar = () => {
                 <div class="mt-6 text-center">
                   <button
                     type="button"
-                    class="group inline-flex w-full items-center justify-center rounded-md bg-black px-6 py-4 text-lg font-semibold text-white transition-all duration-200 ease-in-out focus:shadow hover:bg-gray-800"
+                    class="group inline-flex w-full items-center justify-center rounded-md bg-black px-6 py-4 text-lg font-semibold text-white transition-all duration-200 ease-in-out focus:shadow hover:bg-gray-800 mb-5"
                   >
                     checkout
                     <svg
@@ -276,10 +258,11 @@ const NavBar = () => {
                       />
                     </svg>
                   </button>
-                  <p className="text-center text-xl text-black underline mt-3 ">
+                  <Link to="/cart " className="text-center  pt-4 text-xl text-black underline mt-5  ">
                     View cart
-                  </p>
+                  </Link>
                 </div>
+               
               </div>
             </div>
           </div>

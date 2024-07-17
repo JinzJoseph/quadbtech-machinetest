@@ -8,9 +8,12 @@ import { IoStar } from "react-icons/io5";
 import ProductList from "../ProductList";
 import NewsLetter from "../NewsLetter";
 import Footer from "../Footer";
-
+import { useSelector ,useDispatch} from "react-redux";
+import { addTocart } from "../../redux/Cart/CartSlice";
+import axios from "axios";
 const ProductSection = ({ data }) => {
-  console.log(data);
+const {currentUser}=useSelector((state)=>state.user);
+const dispatch=useDispatch()
   const {
     _id,
     productName,
@@ -20,6 +23,24 @@ const ProductSection = ({ data }) => {
     sellingprice,
     category,
   } = data;
+  const userId=currentUser._id
+  const handleAddToCart = async (id) => {
+    try {
+      const res = await axios.post("/api/cart/cart", {productId:id,userId}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(res);
+      if (res.status === 200) {
+        dispatch(addTocart(data));
+        alert("Successfully product added to cart");
+       
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <div className="container mx-auto pt-5 flex w-full h-auto bg-white">
@@ -62,13 +83,13 @@ const ProductSection = ({ data }) => {
             <h1 className="font-medium text-2xl">Black</h1>
           </div>
           <div className="flex gap-2 mt-4 ">
-            {[...Array(3)].map((_, index) => (
+            {productImage.map((i, index) => (
               <div
-                key={index}
-                className="bg-slate-400 p-1 m-auto justify-between"
+                key={i}
+                className="bg-slate-400  m-auto justify-between"
               >
                 <img
-                  src="https://media.istockphoto.com/id/1334037436/photo/wooden-chair-isolated-on-white-with-clipping-path.jpg?s=612x612&w=0&k=20&c=ToZrdNt8mNvaPLEuMg9Pj6u-5etxNwcIUzVOIF088yM="
+                  src={i}
                   className="w-25 h-20 object-cover"
                   alt=""
                 />
@@ -82,7 +103,9 @@ const ProductSection = ({ data }) => {
               <p className="cursor-pointer font-bold text-lg">+</p>
             </div>
             <div className="w-[70%] flex items-center justify-center ml-4">
-              <button className="flex w-full gap-2 border border-black bg-white text-black rounded-md px-6 py-3 font-bold items-center justify-center hover:bg-black hover:text-white transition-colors duration-300">
+              <button  
+               onClick={() => handleAddToCart(_id)}
+              className="flex w-full gap-2 border border-black bg-white text-black rounded-md px-6 py-3 font-bold items-center justify-center hover:bg-black hover:text-white transition-colors duration-300">
                 <CiHeart className="text-2xl" />
                 Add to Cart
               </button>
