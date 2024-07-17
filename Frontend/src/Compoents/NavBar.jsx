@@ -2,16 +2,32 @@ import React, { useState } from "react";
 import { CiSearch, CiShoppingCart } from "react-icons/ci";
 import { CgProfile } from "react-icons/cg";
 import { IoMdClose } from "react-icons/io";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { signoutSuccess } from "../redux/User/UserSlice";
+import axios from "axios";
 const NavBar = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.user);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
   const [menuOpen, SetMenuOpen] = useState(false);
-  const user=true
+
+  const handleLogout = async () => {
+    try {
+      dispatch(signoutSuccess());
+      const res = await axios.post("/api/user/signout");
+      if (res.status === 200) {
+        navigate("/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <div className="container mx-auto pt-3 flex justify-between items-center h-[8%] z-20">
@@ -30,7 +46,6 @@ const NavBar = () => {
             Cart
           </Link>
           <p className="text-lg font-semibold text-slate-400">Contact Us</p>
-          <p className="text-lg font-semibold text-white items-center bg-black px-4 py-2  rounded">Logout</p>
         </div>
         <div className="flex justify-between gap-5 items-center">
           {/* items */}
@@ -44,9 +59,13 @@ const NavBar = () => {
             onClick={toggleDrawer}
           >
             <CiShoppingCart />
-            <span className="absolute top-0 right-5 mt-3 transform -translate-y-1/2 translate-x-1/2 bg-black text-white px-1 rounded-full text-xs">
-              2
-            </span>
+            {currentUser ? (
+              <span className="absolute top-0 right-5 mt-3 transform -translate-y-1/2 translate-x-1/2 bg-black text-white px-1 rounded-full text-xs">
+                2
+              </span>
+            ) : (
+              ""
+            )}
           </button>
 
           <p
@@ -58,15 +77,45 @@ const NavBar = () => {
           {menuOpen && (
             <div className="absolute bg-white bottom-0 top-11 h-fit p-2 shadow-lg rounded">
               <nav>
-                {user && (
-                  <Link
-                    to={"/admin"}
-                    className="whitespace-nowrap hidden md:block hover:bg-slate-100 p-2 text-2xl"
-                    onClick={() => SetMenuOpen(!menuOpen)}
-                  >
-                    Admin Panel
-                  </Link>
+              {/* {currentUser === false && (
+                  <div>
+                    <button
+                      className="whitespace-nowrap bg-black text-white px-4 py-1 font-bold hidden md:block  p-2 text-2xl"
+                      onClick={() => navigate("/login")}
+                    >
+                      login
+                    </button>
+                  </div>
+                )} */}
+
+                {currentUser?.isAdmin ? (
+                  <div>
+                    <Link
+                      to={"/admin"}
+                      className="whitespace-nowrap hidden md:block hover:bg-slate-100 p-2 text-2xl"
+                      onClick={() => SetMenuOpen(!menuOpen)}
+                    >
+                      Admin Panel
+                    </Link>
+
+                    <button
+                      className="whitespace-nowrap bg-black text-white px-4 py-1 font-bold hidden md:block  p-2 text-2xl"
+                      onClick={handleLogout}
+                    >
+                      logout
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <button
+                      className="whitespace-nowrap bg-black text-white px-4 py-1 font-bold hidden md:block  p-2 text-2xl"
+                      onClick={handleLogout}
+                    >
+                      logout
+                    </button>
+                  </div>
                 )}
+                
               </nav>
             </div>
           )}

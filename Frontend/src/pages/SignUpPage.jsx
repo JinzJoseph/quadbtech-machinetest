@@ -1,7 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { FiEye } from "react-icons/fi";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const SignUpPage = () => {
+  const navigate = useNavigate();
+  const [username, setusername] = useState("");
+  const [email, setemail] = useState("");
+  const [password, setpassword] = useState("");
+  const handlesubmit = async (e) => {
+    e.preventDefault();
+    try {
+      console.log(username, email, password);
+      const res = await axios.post(
+        "/api/user/signup",
+        { username, email, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (res.status === 200) {
+        navigate("/login");
+      } else {
+        alert(error);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className=" ">
       <div className="container mx-auto mt-28   ">
@@ -22,24 +50,22 @@ const SignUpPage = () => {
                   Already have an account?
                   <span className="text-green-400">sign in</span>
                 </Link>
-                <form action="" className="mt-4 pt-4">
-                  <input
-                    type="text"
-                    class="block border  border-grey-light w-full p-3 rounded mb-4"
-                    name="fullname"
-                    placeholder="Your  Name"
-                  />
+                <form action="" className="mt-4 pt-4" onSubmit={handlesubmit}>
                   <input
                     type="text"
                     class="block border border-grey-light w-full p-3 rounded mb-4"
                     name="text"
                     placeholder="Username"
+                    value={username}
+                    onChange={(e) => setusername(e.target.value)}
                   />
                   <input
                     type="email"
                     class="block border border-grey-light w-full p-3 rounded mb-4"
                     name="email"
                     placeholder="Email address"
+                    value={email}
+                    onChange={(e) => setemail(e.target.value)}
                   />
                   <div className="relative flex flex-row justify-between items-center">
                     <input
@@ -47,6 +73,8 @@ const SignUpPage = () => {
                       className="block border border-grey-light w-full p-3 rounded mb-4 pr-10"
                       name="password"
                       placeholder="Password"
+                      value={password}
+                      onChange={(e) => setpassword(e.target.value)}
                     />
                     <FiEye className="absolute right-3 cursor-pointer " />
                   </div>
@@ -62,7 +90,7 @@ const SignUpPage = () => {
                     type="submit"
                     className="w-full text-center py-3 rounded bg-black mt-2 text-white  focus:outline-none my-1"
                   >
-                    Create Account
+                 Sign up
                   </button>
                 </form>
               </div>

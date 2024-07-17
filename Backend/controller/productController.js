@@ -18,6 +18,7 @@ export const getAllProducts = async (req, res) => {
 };
 export const getSingleProduct = async (req, res) => {
   const { id } = req.params;
+  console.log(id);
   try {
     const product = await Product.findOne({ _id: id });
     if (!product) {
@@ -26,6 +27,7 @@ export const getSingleProduct = async (req, res) => {
         success: false,
       });
     }
+    console.log(product);
     res.status(200).json({
       message: "suucessfully fetched data",
       success: true,
